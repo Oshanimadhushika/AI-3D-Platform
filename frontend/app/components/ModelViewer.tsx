@@ -46,9 +46,8 @@ export default function ModelViewer({ glbUrl }: ModelViewerProps) {
           <Stage 
             environment="city" 
             intensity={0.5} 
-            contactShadow={{ opacity: 0.4, blur: 2 }} 
             adjustCamera={true}
-            shadows="contact"
+            shadows={{ type: 'contact', opacity: 0.4, blur: 2 }}
           >
             <Model url={glbUrl} />
           </Stage>

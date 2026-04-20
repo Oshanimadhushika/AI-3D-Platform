@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, Package, Diamond, Scissors, Layers, Download, CheckCircle, AlertCircle } from "lucide-react";
+import { Sparkles, Package, Diamond, Scissors, Layers, Download, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import ImageUpload from "./components/ui/ImageUpload";
 import { designApi } from "./lib/api";
 import ModelViewer from "./components/ModelViewer";
@@ -171,7 +171,9 @@ export default function Home() {
                 <label className="text-sm font-medium text-gray-300">Reference Image (Optional)</label>
                 <ImageUpload onImageSelect={setSelectedImage} />
               </div>
-              <button 
+            </div>
+
+            <button 
               onClick={handleGenerate}
               disabled={isGenerating || (!prompt && !selectedImage)}
               className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-white/5 disabled:text-gray-500 text-white font-bold py-4 rounded-2xl transition-all shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-3 group"
