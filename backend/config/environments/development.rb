@@ -38,6 +38,10 @@ Rails.application.configure do
   # Tell Active Support which deprecation messages to disallow.
   config.active_support.disallowed_deprecation_warnings = []
 
+  # Store uploaded files on the local file system (see config/storage.yml for options).
+  # Use :amazon if AWS keys are present, otherwise fallback to :local
+  config.active_storage.service = ENV['AWS_ACCESS_KEY_ID'] ? :amazon : :local
+
   # Raise an error on page load if there are pending migrations.
   config.active_record.migration_error = :page_load
 

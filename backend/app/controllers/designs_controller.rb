@@ -1,7 +1,7 @@
 class DesignsController < ApplicationController
   def index
-    @designs = Design.all
-    render json: @designs
+    @designs = Design.all.order(created_at: :desc)
+    render json: @designs.as_json(methods: [:model_glb_url, :model_obj_url, :model_stl_url])
   end
 
   def show
@@ -22,10 +22,11 @@ class DesignsController < ApplicationController
 
     if result[:success]
       @design = user.designs.build(design_params)
-      map_ai_data(@design, result[:data])
+      # Attach the files asynchronously/synchronously from the AI service URLs
+      AttachmentService.attach_remote_files(@design, result[:data])
 
       if @design.save
-        render json: @design, status: :created
+        render json: @design.as_json(methods: [:model_glb_url, :model_obj_url, :model_stl_url]), status: :created
       else
         render json: { errors: @design.errors.full_messages }, status: :unprocessable_entity
       end
@@ -42,19 +43,16 @@ class DesignsController < ApplicationController
     prompt = params[:prompt] || params.dig(:design, :prompt)
     category = params[:category] || params.dig(:design, :category) || "Uncategorized"
 
-    # For image-to-3d, we first save the attachment, then we would typically send it to AI
-    # For now, we simulate the flow
     @design = user.designs.build(prompt: prompt, category: category)
     @design.source_image.attach(params[:image]) if params[:image]
     
-    # Simulate sending to AI (passing the image URL if public, or just prompt)
     ai_client = AiServiceClient.new
     result = ai_client.image_to_3d("http://example.com/source_image.png", category)
 
     if result[:success]
-      map_ai_data(@design, result[:data])
+      AttachmentService.attach_remote_files(@design, result[:data])
       if @design.save
-        render json: @design, status: :created
+        render json: @design.as_json(methods: [:model_glb_url, :model_obj_url, :model_stl_url]), status: :created
       else
         render json: { errors: @design.errors.full_messages }, status: :unprocessable_entity
       end
