@@ -7,13 +7,18 @@ class AttachmentService
     # Attach GLB
     if data["glb_url"].present?
       begin
-        # If it's a relative URL (which we used for dev), we might need to handle it
-        # But usually we expect an absolute URL from a real AI service
         url = data["glb_url"].start_with?("http") ? data["glb_url"] : "http://localhost:3000#{data["glb_url"]}"
-        file = URI.open(url)
-        design.glb_model.attach(io: file, filename: "model_#{design.id}.glb", content_type: "model/gltf-binary")
+        # Setting a small open_timeout to avoid hanging
+        file = URI.open(url, open_timeout: 5)
+        attachment = design.glb_model.attach(io: file, filename: "model_#{design.id || SecureRandom.hex(4)}.glb", content_type: "model/gltf-binary")
+        
+        unless design.glb_model.attached?
+          Rails.logger.error "GLB Attachment failed to save: #{design.errors.full_messages}"
+        end
+      rescue OpenURI::HTTPError => e
+        Rails.logger.error "Tripo GLB HTTP Error: #{e.message} for URL: #{url}"
       rescue => e
-        Rails.logger.error "Failed to attach GLB: #{e.message}"
+        Rails.logger.error "Failed to attach GLB: #{e.message} (#{e.class})"
       end
     end
 

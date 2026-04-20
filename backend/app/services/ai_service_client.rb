@@ -7,7 +7,7 @@ class AiServiceClient
     @conn = Faraday.new(url: BASE_URL) do |f|
       f.request :json
       f.response :json
-      f.options.timeout = 60 # 60 seconds timeout for AI generation
+      f.options.timeout = 180 # 180 seconds (3 mins) for real Tripo AI generation
       f.options.open_timeout = 5
       f.adapter Faraday.default_adapter
     end

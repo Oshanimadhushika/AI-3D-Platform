@@ -42,6 +42,10 @@ Rails.application.configure do
   # Use :amazon if AWS keys are present, otherwise fallback to :local
   config.active_storage.service = ENV['AWS_ACCESS_KEY_ID'] ? :amazon : :local
 
+  # Default URL options for generating absolute URLs (required for Active Storage helpers)
+  config.action_controller.default_url_options = { host: 'localhost', port: 3001 }
+  routes.default_url_options = { host: 'localhost', port: 3001 }
+
   # Raise an error on page load if there are pending migrations.
   config.active_record.migration_error = :page_load
 

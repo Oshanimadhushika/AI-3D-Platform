@@ -22,10 +22,10 @@ class DesignsController < ApplicationController
 
     if result[:success]
       @design = user.designs.build(design_params)
-      # Attach the files asynchronously/synchronously from the AI service URLs
-      AttachmentService.attach_remote_files(@design, result[:data])
-
+      
+      # Save the record first to ensure it's persisted before attaching
       if @design.save
+        AttachmentService.attach_remote_files(@design, result[:data])
         render json: @design.as_json(methods: [:model_glb_url, :model_obj_url, :model_stl_url]), status: :created
       else
         render json: { errors: @design.errors.full_messages }, status: :unprocessable_entity
@@ -46,18 +46,18 @@ class DesignsController < ApplicationController
     @design = user.designs.build(prompt: prompt, category: category)
     @design.source_image.attach(params[:image]) if params[:image]
     
-    ai_client = AiServiceClient.new
-    result = ai_client.image_to_3d("http://example.com/source_image.png", category)
+    if @design.save
+      ai_client = AiServiceClient.new
+      result = ai_client.image_to_3d("http://example.com/source_image.png", category)
 
-    if result[:success]
-      AttachmentService.attach_remote_files(@design, result[:data])
-      if @design.save
+      if result[:success]
+        AttachmentService.attach_remote_files(@design, result[:data])
         render json: @design.as_json(methods: [:model_glb_url, :model_obj_url, :model_stl_url]), status: :created
       else
-        render json: { errors: @design.errors.full_messages }, status: :unprocessable_entity
+        render json: { error: result[:error], details: result[:details] }, status: :service_unavailable
       end
     else
-      render json: { error: result[:error], details: result[:details] }, status: :service_unavailable
+      render json: { errors: @design.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
