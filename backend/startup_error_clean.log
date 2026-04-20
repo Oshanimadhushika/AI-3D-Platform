@@ -1,0 +1,114 @@
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline/io/windows.rb:1: warning: fiddle/import is found in fiddle, which is not part of the default gems since Ruby 4.0.0.
+You can add fiddle to your Gemfile or gemspec to fix this error.
+DEBUGGER: can not load newer irb for coloring. Write 'gem "debug" in your Gemfile.
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline.rb:15: warning: already initialized constant Reline::FILENAME_COMPLETION_PROC
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline.rb:15: warning: previous definition of FILENAME_COMPLETION_PROC was here
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline.rb:16: warning: already initialized constant Reline::USERNAME_COMPLETION_PROC
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline.rb:16: warning: previous definition of USERNAME_COMPLETION_PROC was here
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline.rb:22: warning: already initialized constant Reline::Key
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline.rb:22: warning: previous definition of Key was here
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline.rb:28: warning: already initialized constant Reline::CursorPos
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline.rb:28: warning: previous definition of CursorPos was here
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline.rb:29: warning: already initialized constant Reline::DialogRenderInfo
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline.rb:29: warning: previous definition of DialogRenderInfo was here
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline.rb:41: warning: already initialized constant Reline::Core::ATTR_READER_NAMES
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline.rb:41: warning: previous definition of ATTR_READER_NAMES was here
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline.rb:161: warning: already initialized constant Reline::Core::DialogProc
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline.rb:161: warning: previous definition of DialogProc was here
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline.rb:211: warning: already initialized constant Reline::DEFAULT_DIALOG_PROC_AUTOCOMPLETE
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline.rb:211: warning: previous definition of DEFAULT_DIALOG_PROC_AUTOCOMPLETE was here
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline.rb:248: warning: already initialized constant Reline::DEFAULT_DIALOG_CONTEXT
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/reline-0.6.3/lib/reline.rb:248: warning: previous definition of DEFAULT_DIALOG_CONTEXT was here
+=> Booting Puma
+=> Rails 7.0.10 application starting in development 
+=> Run `bin/rails server --help` for more startup options
+Exiting
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tzinfo-2.0.6/lib/tzinfo/data_source.rb:159:in 'TZInfo::DataSource.create_default_data_source': tzinfo-data is not present. Please add gem 'tzinfo-data' to your Gemfile and run bundle install (TZInfo::DataSourceNotFound)
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tzinfo-2.0.6/lib/tzinfo/data_source.rb:55:in 'block in TZInfo::DataSource.get'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tzinfo-2.0.6/lib/tzinfo/data_source.rb:54:in 'Thread::Mutex#synchronize'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tzinfo-2.0.6/lib/tzinfo/data_source.rb:54:in 'TZInfo::DataSource.get'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/activesupport-7.0.10/lib/active_support/railtie.rb:88:in 'block in <class:Railtie>'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/initializable.rb:32:in 'BasicObject#instance_exec'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/initializable.rb:32:in 'Rails::Initializable::Initializer#run'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/initializable.rb:61:in 'block in Rails::Initializable#run_initializers'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tsort-0.2.0/lib/tsort.rb:231:in 'block in TSort.tsort_each'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tsort-0.2.0/lib/tsort.rb:353:in 'block (2 levels) in TSort.each_strongly_connected_component'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tsort-0.2.0/lib/tsort.rb:434:in 'TSort.each_strongly_connected_component_from'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tsort-0.2.0/lib/tsort.rb:352:in 'block in TSort.each_strongly_connected_component'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tsort-0.2.0/lib/tsort.rb:350:in 'Rails::Initializable::Collection#each'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tsort-0.2.0/lib/tsort.rb:350:in 'Method#call'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tsort-0.2.0/lib/tsort.rb:350:in 'TSort.each_strongly_connected_component'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tsort-0.2.0/lib/tsort.rb:229:in 'TSort.tsort_each'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tsort-0.2.0/lib/tsort.rb:208:in 'TSort#tsort_each'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/initializable.rb:60:in 'Rails::Initializable#run_initializers'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/application.rb:375:in 'Rails::Application#initialize!'
+	from F:/Elmali Tech/ai-3d-design-app/backend/config/environment.rb:5:in '<main>'
+	from config.ru:1:in 'Kernel#require_relative'
+	from config.ru:1:in 'block in <main>'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/rack-2.2.23/lib/rack/builder.rb:116:in 'Kernel#eval'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/rack-2.2.23/lib/rack/builder.rb:116:in 'Rack::Builder.new_from_string'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/rack-2.2.23/lib/rack/builder.rb:105:in 'Rack::Builder.load_file'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/rack-2.2.23/lib/rack/builder.rb:66:in 'Rack::Builder.parse_file'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/rack-2.2.23/lib/rack/server.rb:349:in 'Rack::Server#build_app_and_options_from_config'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/rack-2.2.23/lib/rack/server.rb:249:in 'Rack::Server#app'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/rack-2.2.23/lib/rack/server.rb:422:in 'Rack::Server#wrapped_app'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/commands/server/server_command.rb:76:in 'Rails::Server#log_to_stdout'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/commands/server/server_command.rb:36:in 'Rails::Server#start'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/commands/server/server_command.rb:143:in 'block in Rails::Command::ServerCommand#perform'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/commands/server/server_command.rb:134:in 'Kernel#tap'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/commands/server/server_command.rb:134:in 'Rails::Command::ServerCommand#perform'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/thor-1.5.0/lib/thor/command.rb:28:in 'Thor::Command#run'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/thor-1.5.0/lib/thor/invocation.rb:127:in 'Thor::Invocation#invoke_command'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/thor-1.5.0/lib/thor.rb:538:in 'Thor.dispatch'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/command/base.rb:87:in 'Rails::Command::Base.perform'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/command.rb:48:in 'Rails::Command.invoke'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/commands.rb:18:in '<main>'
+	from C:/Ruby40-x64/lib/ruby/4.0.0/bundled_gems.rb:60:in 'Kernel.require'
+	from C:/Ruby40-x64/lib/ruby/4.0.0/bundled_gems.rb:60:in 'block (2 levels) in Kernel#replace_require'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/bootsnap-1.23.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:33:in 'Kernel#require'
+	from bin/rails:4:in '<main>'
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tzinfo-2.0.6/lib/tzinfo/data_sources/zoneinfo_data_source.rb:252:in 'TZInfo::DataSources::ZoneinfoDataSource#initialize': None of the paths included in TZInfo::DataSources::ZoneinfoDataSource.search_path are valid zoneinfo directories. (TZInfo::DataSources::ZoneinfoDirectoryNotFound)
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tzinfo-2.0.6/lib/tzinfo/data_source.rb:157:in 'TZInfo::DataSource.create_default_data_source'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tzinfo-2.0.6/lib/tzinfo/data_source.rb:55:in 'block in TZInfo::DataSource.get'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tzinfo-2.0.6/lib/tzinfo/data_source.rb:54:in 'Thread::Mutex#synchronize'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tzinfo-2.0.6/lib/tzinfo/data_source.rb:54:in 'TZInfo::DataSource.get'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/activesupport-7.0.10/lib/active_support/railtie.rb:88:in 'block in <class:Railtie>'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/initializable.rb:32:in 'BasicObject#instance_exec'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/initializable.rb:32:in 'Rails::Initializable::Initializer#run'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/initializable.rb:61:in 'block in Rails::Initializable#run_initializers'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tsort-0.2.0/lib/tsort.rb:231:in 'block in TSort.tsort_each'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tsort-0.2.0/lib/tsort.rb:353:in 'block (2 levels) in TSort.each_strongly_connected_component'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tsort-0.2.0/lib/tsort.rb:434:in 'TSort.each_strongly_connected_component_from'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tsort-0.2.0/lib/tsort.rb:352:in 'block in TSort.each_strongly_connected_component'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tsort-0.2.0/lib/tsort.rb:350:in 'Rails::Initializable::Collection#each'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tsort-0.2.0/lib/tsort.rb:350:in 'Method#call'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tsort-0.2.0/lib/tsort.rb:350:in 'TSort.each_strongly_connected_component'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tsort-0.2.0/lib/tsort.rb:229:in 'TSort.tsort_each'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/tsort-0.2.0/lib/tsort.rb:208:in 'TSort#tsort_each'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/initializable.rb:60:in 'Rails::Initializable#run_initializers'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/application.rb:375:in 'Rails::Application#initialize!'
+	from F:/Elmali Tech/ai-3d-design-app/backend/config/environment.rb:5:in '<main>'
+	from config.ru:1:in 'Kernel#require_relative'
+	from config.ru:1:in 'block in <main>'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/rack-2.2.23/lib/rack/builder.rb:116:in 'Kernel#eval'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/rack-2.2.23/lib/rack/builder.rb:116:in 'Rack::Builder.new_from_string'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/rack-2.2.23/lib/rack/builder.rb:105:in 'Rack::Builder.load_file'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/rack-2.2.23/lib/rack/builder.rb:66:in 'Rack::Builder.parse_file'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/rack-2.2.23/lib/rack/server.rb:349:in 'Rack::Server#build_app_and_options_from_config'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/rack-2.2.23/lib/rack/server.rb:249:in 'Rack::Server#app'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/rack-2.2.23/lib/rack/server.rb:422:in 'Rack::Server#wrapped_app'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/commands/server/server_command.rb:76:in 'Rails::Server#log_to_stdout'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/commands/server/server_command.rb:36:in 'Rails::Server#start'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/commands/server/server_command.rb:143:in 'block in Rails::Command::ServerCommand#perform'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/commands/server/server_command.rb:134:in 'Kernel#tap'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/commands/server/server_command.rb:134:in 'Rails::Command::ServerCommand#perform'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/thor-1.5.0/lib/thor/command.rb:28:in 'Thor::Command#run'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/thor-1.5.0/lib/thor/invocation.rb:127:in 'Thor::Invocation#invoke_command'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/thor-1.5.0/lib/thor.rb:538:in 'Thor.dispatch'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/command/base.rb:87:in 'Rails::Command::Base.perform'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/command.rb:48:in 'Rails::Command.invoke'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/railties-7.0.10/lib/rails/commands.rb:18:in '<main>'
+	from C:/Ruby40-x64/lib/ruby/4.0.0/bundled_gems.rb:60:in 'Kernel.require'
+	from C:/Ruby40-x64/lib/ruby/4.0.0/bundled_gems.rb:60:in 'block (2 levels) in Kernel#replace_require'
+	from C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/bootsnap-1.23.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:33:in 'Kernel#require'
+	from bin/rails:4:in '<main>'
