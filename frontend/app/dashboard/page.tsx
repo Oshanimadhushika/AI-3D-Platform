@@ -17,9 +17,12 @@ interface Design {
 
 const CATEGORIES = ["All", "Furniture", "Jewelry", "Character", "Weapon", "Prop", "Building"];
 
+// Simple global cache for designs to prevent flickering on navigation
+let designsCache: Design[] | null = null;
+
 export default function Dashboard() {
-  const [designs, setDesigns] = useState<Design[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [designs, setDesigns] = useState<Design[]>(designsCache || []);
+  const [isLoading, setIsLoading] = useState(!designsCache);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [error, setError] = useState<string | null>(null);
@@ -29,11 +32,12 @@ export default function Dashboard() {
   }, []);
 
   const fetchDesigns = async () => {
-    setIsLoading(true);
+    if (!designsCache) setIsLoading(true);
     setError(null);
     try {
       const data = await designApi.getDesigns();
       setDesigns(data);
+      designsCache = data;
     } catch (err) {
       console.error("Failed to fetch designs:", err);
       setError("Could not load your designs. Please try again later.");
@@ -45,13 +49,19 @@ export default function Dashboard() {
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to permanently delete this design?")) return;
 
+    // Optimistic Update: Immediately remove from UI
+    const previousDesigns = [...designs];
+    setDesigns((prev) => prev.filter((d) => d.id !== id));
+    designsCache = designsCache?.filter((d) => d.id !== id) || null;
+
     try {
       await designApi.deleteDesign(id);
-      // Optimistic update or refetch
-      setDesigns((prev) => prev.filter((d) => d.id !== id));
     } catch (err) {
       console.error("Failed to delete design:", err);
-      alert("Failed to delete the design. Please try again.");
+      alert("Failed to delete the design. Restoring...");
+      // Revert if failed
+      setDesigns(previousDesigns);
+      designsCache = previousDesigns;
     }
   };
 

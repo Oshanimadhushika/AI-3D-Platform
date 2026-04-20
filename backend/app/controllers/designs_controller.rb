@@ -48,7 +48,9 @@ class DesignsController < ApplicationController
     
     if @design.save
       ai_client = AiServiceClient.new
-      result = ai_client.image_to_3d("http://example.com/source_image.png", category)
+      # Pass the real public URL of the uploaded image to the AI service
+      image_url = Rails.application.routes.url_helpers.url_for(@design.source_image)
+      result = ai_client.image_to_3d(image_url, category)
 
       if result[:success]
         AttachmentService.attach_remote_files(@design, result[:data])

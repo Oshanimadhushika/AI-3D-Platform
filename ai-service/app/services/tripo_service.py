@@ -42,11 +42,21 @@ class Tripo3DGenerator(Base3DGenerator):
             task_data = response.json()
             task_id = task_data["data"]["task_id"]
 
-            # 2. Poll Task (Max 3 minutes = 36 attempts of 5s)
+            # 2. Poll Task (Max 3 minutes)
             start_time = datetime.now()
-            attempts = 0
-            while attempts < 36:
-                await asyncio.sleep(5)
+            poll_interval = 2
+            max_interval = 10
+            total_waited = 0
+            timeout = 180
+
+            while total_waited < timeout:
+                await asyncio.sleep(poll_interval)
+                total_waited += poll_interval
+                
+                # Gradually increase polling interval up to max_interval
+                if poll_interval < max_interval:
+                    poll_interval = min(poll_interval + 1, max_interval)
+
                 status_response = await client.get(f"{self.BASE_URL}/{task_id}", headers=self.headers)
                 status_response.raise_for_status()
                 status_data = status_response.json()

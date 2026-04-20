@@ -14,34 +14,54 @@ export default function Home() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   
   const [isGenerating, setIsGenerating] = useState(false);
-  const [resultUrls, setResultUrls] = useState<{ glb_url: string; obj_url: string; stl_url: string } | null>(null);
+  const [loadingStep, setLoadingStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [resultUrls, setResultUrls] = useState<any>(null);
+
+  const LOADING_STEPS = [
+    "Analyzing prompt concept...",
+    "Initializing neural core...",
+    "Sculpting 3D geometry...",
+    "Voxelizing mesh structure...",
+    "Optimizing topology...",
+    "Applying PBR materials...",
+    "Finalizing assets..."
+  ];
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsGenerating(true);
+    setLoadingStep(0);
     setError(null);
     setResultUrls(null);
 
+    // Simulated progress steps for better UX
+    const progressInterval = setInterval(() => {
+      setLoadingStep((prev) => (prev < LOADING_STEPS.length - 1 ? prev + 1 : prev));
+    }, 4000);
+
     try {
-      let response;
+      let result;
       if (selectedImage) {
-        // Image-to-3D flow
-        response = await designApi.generateFromImage(prompt, category, selectedImage);
+        result = await designApi.generateFromImage(prompt, category, selectedImage);
       } else {
-        // Text-to-3D flow
-        response = await designApi.generateFromText(prompt, category);
+        if (!prompt) {
+          setError("Please enter a prompt first.");
+          setIsGenerating(false);
+          clearInterval(progressInterval);
+          return;
+        }
+        result = await designApi.generateFromText(prompt, category);
       }
-      
       setResultUrls({
-        glb_url: response.model_glb_url,
-        obj_url: response.model_obj_url,
-        stl_url: response.model_stl_url
+        glb_url: result.model_glb_url,
+        obj_url: result.model_obj_url,
+        stl_url: result.model_stl_url
       });
     } catch (err: any) {
-      console.error("Generation failed:", err);
-      setError(err.response?.data?.error || "AI Service is currently unreachable. Please check your connection.");
+      setError(err?.response?.data?.error || "Failed to generate model. Check your connection.");
     } finally {
+      clearInterval(progressInterval);
       setIsGenerating(false);
     }
   };
@@ -151,46 +171,66 @@ export default function Home() {
                 <label className="text-sm font-medium text-gray-300">Reference Image (Optional)</label>
                 <ImageUpload onImageSelect={setSelectedImage} />
               </div>
-            </div>
-
-            <button 
-              type="submit"
+              <button 
+              onClick={handleGenerate}
               disabled={isGenerating || (!prompt && !selectedImage)}
-              className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-bold text-lg shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 group"
+              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-white/5 disabled:text-gray-500 text-white font-bold py-4 rounded-2xl transition-all shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-3 group"
             >
               {isGenerating ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Generating 3D Model...
+                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                  <span>Processing...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="group-hover:animate-pulse text-indigo-200" />
-                  Generate 3D Model
+                  <Sparkles className="group-hover:rotate-12 transition-transform" size={20} />
+                  <span>Generate 3D Model</span>
                 </>
               )}
             </button>
+
+            {isGenerating && (
+              <div className="mt-8 space-y-4 animate-in fade-in duration-700">
+                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-indigo-500 transition-all duration-1000 ease-out" 
+                    style={{ width: `${((loadingStep + 1) / LOADING_STEPS.length) * 100}%` }}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-xs font-medium uppercase tracking-widest transition-all">
+                  <span className="text-indigo-400 flex items-center gap-2">
+                    <Loader2 size={12} className="animate-spin" />
+                    {LOADING_STEPS[loadingStep]}
+                  </span>
+                  <span className="text-gray-500">{Math.round(((loadingStep + 1) / LOADING_STEPS.length) * 100)}%</span>
+                </div>
+              </div>
+            )}
           </form>
 
-          {/* Result Area */}
+          {/* Results Area */}
           {resultUrls && (
-            <div className="mt-12 p-6 bg-emerald-500/5 border border-emerald-500/10 rounded-3xl animate-in fade-in slide-in-from-top-4 duration-500">
-               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">
-                  <CheckCircle size={24} />
+            <div className="mt-12 p-8 bg-emerald-500/5 border border-emerald-500/10 rounded-3xl animate-in fade-in zoom-in-95 duration-500 relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-8 text-emerald-500/10 rotate-12">
+                <CheckCircle size={120} strokeWidth={1} />
+              </div>
+
+               <div className="flex items-center gap-4 mb-8 relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-inner">
+                  <CheckCircle size={28} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">Generation Successful!</h3>
-                  <p className="text-gray-400 text-sm">Your 3D model is ready and viewable below.</p>
+                  <h3 className="text-xl font-bold text-white">Generation Successful!</h3>
+                  <p className="text-gray-400 text-sm">Your vision has been brought to life. Preview and export below.</p>
                 </div>
               </div>
 
               {/* 3D Viewer Integration */}
-              <div className="mb-8">
+              <div className="mb-10 relative z-10">
                 <ModelViewer glbUrl={resultUrls.glb_url} />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
                 {[
                   { label: "GLB Model", url: resultUrls.glb_url, type: "Recommended" },
                   { label: "OBJ Model", url: resultUrls.obj_url, type: "Standard" },
