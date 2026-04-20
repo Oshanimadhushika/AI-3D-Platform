@@ -1,31 +1,67 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Search, Plus, Filter, MoreVertical, Download, ExternalLink } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Search, Plus, Filter, MoreVertical, Download, ExternalLink, Trash2, Loader2, AlertCircle } from "lucide-react";
 import Link from "next/link";
+import { designApi } from "../lib/api";
 
-const MOCK_DESIGNS = [
-  { id: 1, prompt: "Elven Cottage", category: "Building", status: "Completed", date: "2026-04-20" },
-  { id: 2, prompt: "Cyberpunk Sneakers", category: "Apparel", status: "Completed", date: "2026-04-19" },
-  { id: 3, prompt: "Dragon Pendant", category: "Jewelry", status: "Processing", date: "2026-04-20" },
-  { id: 4, prompt: "Modern Coffee Table", category: "Furniture", status: "Completed", date: "2026-04-18" },
-  { id: 5, prompt: "Vintage Radio", category: "Prop", status: "Completed", date: "2026-04-17" },
-  { id: 6, prompt: "Gothic Crown", category: "Jewelry", status: "Failed", date: "2026-04-16" },
-];
+interface Design {
+  id: number;
+  prompt: string;
+  category: string;
+  model_glb_url?: string;
+  model_obj_url?: string;
+  model_stl_url?: string;
+  created_at: string;
+}
 
-const CATEGORIES = ["All", "Building", "Apparel", "Jewelry", "Furniture", "Prop"];
+const CATEGORIES = ["All", "Furniture", "Jewelry", "Character", "Weapon", "Prop", "Building"];
 
 export default function Dashboard() {
+  const [designs, setDesigns] = useState<Design[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchDesigns();
+  }, []);
+
+  const fetchDesigns = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await designApi.getDesigns();
+      setDesigns(data);
+    } catch (err) {
+      console.error("Failed to fetch designs:", err);
+      setError("Could not load your designs. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Are you sure you want to permanently delete this design?")) return;
+
+    try {
+      await designApi.deleteDesign(id);
+      // Optimistic update or refetch
+      setDesigns((prev) => prev.filter((d) => d.id !== id));
+    } catch (err) {
+      console.error("Failed to delete design:", err);
+      alert("Failed to delete the design. Please try again.");
+    }
+  };
 
   const filteredDesigns = useMemo(() => {
-    return MOCK_DESIGNS.filter((design) => {
-      const matchesSearch = design.prompt.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = selectedCategory === "All" || design.category === selectedCategory;
+    return designs.filter((design) => {
+      const matchesSearch = design.prompt?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = selectedCategory === "All" || design.category?.toLowerCase() === selectedCategory.toLowerCase();
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, designs]);
 
   return (
     <div className="min-h-screen bg-slate-950 p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
@@ -39,6 +75,13 @@ export default function Dashboard() {
           <span>New Generation</span>
         </Link>
       </header>
+
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center gap-3 text-red-400">
+          <AlertCircle size={20} />
+          <p className="text-sm font-medium">{error}</p>
+        </div>
+      )}
 
       {/* Persistence / Filters */}
       <div className="flex flex-col md:flex-row gap-4 items-center">
@@ -73,7 +116,12 @@ export default function Dashboard() {
       </div>
 
       {/* Grid Results */}
-      {filteredDesigns.length > 0 ? (
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-20 text-indigo-400 gap-4">
+          <Loader2 className="animate-spin" size={40} />
+          <p className="text-sm font-medium animate-pulse">Fetching your library...</p>
+        </div>
+      ) : filteredDesigns.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 animate-in fade-in duration-500">
           {filteredDesigns.map((design) => (
             <div key={design.id} className="group bg-white/[0.03] border border-white/10 rounded-2xl overflow-hidden hover:bg-white/[0.06] hover:border-white/20 transition-all duration-300">
@@ -84,21 +132,26 @@ export default function Dashboard() {
                 </div>
                 
                 <div className="absolute top-4 left-4">
-                  <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider backdrop-blur-md ${
-                    design.status === 'Completed' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
-                    design.status === 'Processing' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
-                    'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                  }`}>
-                    {design.status}
+                  <span className="px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider backdrop-blur-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    COMPLETED
                   </span>
+                </div>
+
+                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                   <button 
+                    onClick={() => handleDelete(design.id)}
+                    className="p-2 bg-red-500/20 border border-red-500/30 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all shadow-lg"
+                   >
+                     <Trash2 size={16} />
+                   </button>
                 </div>
               </div>
 
               <div className="p-4 space-y-3">
                 <div className="flex items-start justify-between gap-2">
-                  <div>
+                  <div className="max-w-[75%]">
                     <h3 className="font-semibold text-white line-clamp-1">{design.prompt}</h3>
-                    <p className="text-xs text-gray-500">{design.category} • {design.date}</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-tight">{design.category} • {new Date(design.created_at).toLocaleDateString()}</p>
                   </div>
                   <button className="text-gray-500 hover:text-white transition-colors">
                     <MoreVertical size={18} />
@@ -106,15 +159,21 @@ export default function Dashboard() {
                 </div>
 
                 <div className="flex items-center gap-2 pt-2">
-                  <button className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                    design.status === 'Completed' ? 'bg-white/5 hover:bg-white/10 text-white border border-white/10' : 'bg-white/5 opacity-50 cursor-not-allowed text-gray-500 border border-transparent'
-                  }`}>
+                  <a 
+                    href={design.model_glb_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium bg-white/5 hover:bg-white/10 text-white border border-white/10 transition-all"
+                  >
                     <Download size={16} />
                     Download
-                  </button>
-                  <button className="w-10 h-10 flex items-center justify-center rounded-lg bg-indigo-600/10 text-indigo-400 hover:bg-indigo-600 hover:text-white transition-all border border-indigo-500/20">
+                  </a>
+                  <Link 
+                    href="/"
+                    className="w-10 h-10 flex items-center justify-center rounded-lg bg-indigo-600/10 text-indigo-400 hover:bg-indigo-600 hover:text-white transition-all border border-indigo-500/20"
+                  >
                     <ExternalLink size={16} />
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -130,7 +189,7 @@ export default function Dashboard() {
             <p className="text-gray-500 text-sm">Try adjusting your search or filters.</p>
           </div>
           <button 
-            onClick={() => { setSearchQuery(""); setSelectedCategory("All"); }}
+            onClick={() => { setSearchQuery(""); setSelectedCategory("All"); fetchDesigns(); }}
             className="text-indigo-400 hover:text-indigo-300 text-sm font-medium pt-2"
           >
             Clear all filters

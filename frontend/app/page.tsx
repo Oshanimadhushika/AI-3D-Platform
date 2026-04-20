@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Sparkles, Package, Diamond, Scissors, Layers, Download, CheckCircle, AlertCircle } from "lucide-react";
 import ImageUpload from "./components/ui/ImageUpload";
 import { designApi } from "./lib/api";
+import ModelViewer from "./components/ModelViewer";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
@@ -180,8 +181,13 @@ export default function Home() {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-white">Generation Successful!</h3>
-                  <p className="text-gray-400 text-sm">Your 3D assets are ready for download.</p>
+                  <p className="text-gray-400 text-sm">Your 3D model is ready and viewable below.</p>
                 </div>
+              </div>
+
+              {/* 3D Viewer Integration */}
+              <div className="mb-8">
+                <ModelViewer glbUrl={resultUrls.glb_url} />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
