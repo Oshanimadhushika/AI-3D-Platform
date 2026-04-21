@@ -16,7 +16,7 @@ frontend/node_modules/
 frontend/.next/
 
 # Backend (Rails)
-backend/bin/
+# backend/bin/  <-- REMOVED THIS TO ALLOW BINSTUBS
 backend/log/*.log
 backend/tmp/
 backend/db/*.sqlite3
