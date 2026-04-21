@@ -1,11 +1,12 @@
 import os
 import httpx
 import asyncio
-import uuid
+import json
 from datetime import datetime
 from typing import Optional
 from app.services.base import Base3DGenerator
 from app.schemas.generation import GenerationResult, TextTo3DRequest, ImageTo3DRequest
+from app.utils.prompt_helper import enrich_prompt
 
 class Tripo3DGenerator(Base3DGenerator):
     BASE_URL = "https://api.tripo3d.ai/v2/openapi/task"
@@ -18,17 +19,28 @@ class Tripo3DGenerator(Base3DGenerator):
         }
 
     async def generate_from_text(self, request: TextTo3DRequest) -> GenerationResult:
+        # 1. Enrich the prompt
+        original_prompt = request.prompt
+        final_prompt = enrich_prompt(original_prompt)
+        
+        print(f"\n[AI-SERVICE] Processing Text-to-3D Request")
+        print(f"  > Original Prompt: {original_prompt}")
+        print(f"  > Enriched Prompt: {final_prompt}")
+
         payload = {
             "type": "text_to_model",
-            "prompt": request.prompt
+            "prompt": final_prompt
         }
         return await self._create_and_poll_task(payload)
 
     async def generate_from_image(self, request: ImageTo3DRequest) -> GenerationResult:
+        print(f"\n[AI-SERVICE] Processing Image-to-3D Request")
+        print(f"  > Image URL: {request.image_url}")
+
         payload = {
             "type": "image_to_model",
             "file": {
-                "type": "jpg", # Defaulting but should ideally detect
+                "type": request.image_url.split('.')[-1].split('?')[0] if '.' in request.image_url else "png",
                 "url": request.image_url
             }
         }
@@ -37,46 +49,68 @@ class Tripo3DGenerator(Base3DGenerator):
     async def _create_and_poll_task(self, payload: dict) -> GenerationResult:
         async with httpx.AsyncClient(timeout=30.0) as client:
             # 1. Create Task
+            print(f"  > Sending request to Tripo API...")
             response = await client.post(self.BASE_URL, headers=self.headers, json=payload)
-            response.raise_for_status()
-            task_data = response.json()
-            task_id = task_data["data"]["task_id"]
+            
+            if response.status_code != 200:
+                print(f"  !! API Error: {response.status_code} - {response.text}")
+                response.raise_for_status()
 
-            # 2. Poll Task (Max 3 minutes)
+            task_data = response.json()
+            print(f"  > Task Created Response: {json.dumps(task_data, indent=2)}")
+            
+            task_id = task_data.get("data", {}).get("task_id")
+            if not task_id:
+                raise Exception(f"Failed to get task_id from Tripo response: {task_data}")
+
+            # 2. Poll Task (Max 5 minutes for higher complexity)
             start_time = datetime.now()
-            poll_interval = 2
-            max_interval = 10
+            poll_interval = 3
+            timeout = 300
             total_waited = 0
-            timeout = 180
+
+            print(f"  > Starting polling for Task ID: {task_id}")
 
             while total_waited < timeout:
                 await asyncio.sleep(poll_interval)
                 total_waited += poll_interval
                 
-                # Gradually increase polling interval up to max_interval
-                if poll_interval < max_interval:
-                    poll_interval = min(poll_interval + 1, max_interval)
-
                 status_response = await client.get(f"{self.BASE_URL}/{task_id}", headers=self.headers)
-                status_response.raise_for_status()
-                status_data = status_response.json()
+                if status_response.status_code != 200:
+                    continue # Try again
                 
-                status = status_data["data"]["status"]
+                status_data = status_response.json()
+                status = status_data.get("data", {}).get("status")
+                
+                print(f"  > [{total_waited}s] Status: {status}")
                 
                 if status == "success":
-                    result = status_data["data"]["result"]
-                    # Tripo v2 usually returns model URLs in an array or specific fields
-                    # We map them to our schema
+                    result = status_data["data"].get("result", {})
+                    print(f"  > SUCCESS! Extracting URLs...")
+                    
+                    # Extract URLs from tripo response structure
+                    # Tripo returns a primary model (usually GLB) and often obj/stl in textured_mesh or similar
+                    model_url = result.get("model", "")
+                    obj_url = ""
+                    stl_url = ""
+                    
+                    # Search for other formats in nested results if available
+                    if "textured_mesh" in result:
+                        obj_url = result["textured_mesh"].get("obj", "")
+                        stl_url = result["textured_mesh"].get("stl", "")
+
                     return GenerationResult(
                         task_id=task_id,
                         status="finished",
-                        glb_url=result.get("model", ""),
-                        obj_url=result.get("obj", ""),
-                        stl_url=result.get("stl", ""),
+                        glb_url=model_url,
+                        obj_url=obj_url,
+                        stl_url=stl_url,
                         created_at=start_time
                     )
                 elif status == "failed":
-                    raise Exception(f"Tripo AI generation failed: {status_data['data'].get('message', 'Unknown error')}")
-                
-
-            raise Exception("Tripo AI generation timed out after 3 minutes.")
+                    error_msg = status_data["data"].get("message", "Unknown error")
+                    print(f"  !! Task Failed: {error_msg}")
+                    raise Exception(f"Tripo AI generation failed: {error_msg}")
+            
+            print(f"  !! Timed out after {timeout} seconds")
+            raise Exception("Tripo AI generation timed out.")
