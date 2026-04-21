@@ -70,7 +70,7 @@ export default function CustomSelect({
       {/* Dropdown Panel */}
       <div
         role="listbox"
-        className={`absolute z-50 mt-1 w-full min-w-[220px] rounded-2xl border border-white/10 bg-[#111]/95 backdrop-blur-2xl shadow-2xl overflow-hidden transition-all duration-200 origin-top ${
+        className={`absolute z-50 mt-1 w-full min-w-[220px] max-h-[300px] overflow-y-auto rounded-2xl border border-white/10 bg-[#111]/95 backdrop-blur-2xl shadow-2xl transition-all duration-200 origin-top scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent ${
           open ? "opacity-100 scale-100 translate-y-0 pointer-events-auto" : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
         }`}
         style={{ maxWidth: ref.current ? ref.current.offsetWidth + "px" : undefined }}

@@ -46,7 +46,17 @@ class DesignsController < ApplicationController
     
     prompt = params[:prompt] || params.dig(:design, :prompt)
     category = params[:category] || params.dig(:design, :category) || "Uncategorized"
-    options = params[:options] || params.dig(:design, :options)&.to_unsafe_h || {}
+    
+    # Parse options from JSON string if coming from multipart form data
+    options = if params[:options].is_a?(String)
+                begin
+                  JSON.parse(params[:options])
+                rescue JSON::ParserError
+                  {}
+                end
+              else
+                params[:options] || params.dig(:design, :options)&.to_unsafe_h || {}
+              end
 
     @design = user.designs.build(prompt: prompt, category: category)
     @design.source_image.attach(params[:image]) if params[:image]

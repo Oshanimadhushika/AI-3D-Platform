@@ -21,11 +21,12 @@ export const designApi = {
     return response.data;
   },
 
-  generateFromImage: async (prompt: string, category: string, imageFile: File) => {
+  generateFromImage: async (prompt: string, category: string, imageFile: File, options: Record<string, string> = {}) => {
     const formData = new FormData();
     formData.append('prompt', prompt);
     formData.append('category', category);
     formData.append('image', imageFile);
+    formData.append('options', JSON.stringify(options));
 
     const response = await apiClient.post('/generate-from-image', formData, {
       headers: {

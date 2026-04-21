@@ -5,6 +5,7 @@ import { Sparkles, Download, CheckCircle, AlertCircle, Loader2, Gem, Shirt } fro
 import { designApi } from "./lib/api";
 import ModelViewer from "./components/ModelViewer";
 import CustomSelect, { SelectOption } from "./components/ui/CustomSelect";
+import ImageUpload from "./components/ui/ImageUpload";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type Tab = "jewelry" | "clothing";
@@ -52,21 +53,22 @@ function TextareaField({ label, id, value, onChange, placeholder, required }: {
 
 // ─── Jewelry Generator Tab ────────────────────────────────────────────────────
 function JewelryTab({ onSubmit, isGenerating }: {
-  onSubmit: (prompt: string, options: Record<string, string>) => void;
+  onSubmit: (prompt: string, options: Record<string, string>, image?: File | null) => void;
   isGenerating: boolean;
 }) {
   const [form, setForm] = useState<JewelryForm>({
     prompt: "", material: "gold", stone: "diamond", ring_size: "",
   });
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const options: Record<string, string> = { material: form.material, stone: form.stone };
     if (form.ring_size) options.ring_size = form.ring_size;
-    onSubmit(form.prompt, options);
+    onSubmit(form.prompt, options, selectedImage);
   };
 
-  const set = (key: keyof JewelryForm) => (val: string) => setForm(f => ({ ...f, [key]: val }));
+  const set = (key: keyof JewelryForm) => (val: string) => setForm((f: JewelryForm) => ({ ...f, [key]: val }));
 
   const materialOptions: SelectOption[] = [
     { value: "gold", label: "Gold", icon: <Sparkles size={14} /> },
@@ -86,33 +88,42 @@ function JewelryTab({ onSubmit, isGenerating }: {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <TextareaField
-        label="Describe Your Piece" id="jewelry-prompt"
-        value={form.prompt} onChange={set("prompt")}
-        placeholder="e.g. An elegant engagement ring with a princess cut center stone..."
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-5">
+          <TextareaField
+            label="Describe Your Piece" id="jewelry-prompt"
+            value={form.prompt} onChange={set("prompt")}
+            placeholder="e.g. An elegant engagement ring with a princess cut center stone..."
+          />
 
-      <div className="grid grid-cols-2 gap-4">
-        <CustomSelect 
-          label="Material" id="material" value={form.material} onChange={set("material")}
-          options={materialOptions} accentClass="text-yellow-400" ringClass="focus:ring-yellow-500/30"
-        />
-        <CustomSelect 
-          label="Gem / Stone" id="stone" value={form.stone} onChange={set("stone")}
-          options={stoneOptions} accentClass="text-yellow-400" ringClass="focus:ring-yellow-500/30"
-        />
-      </div>
+          <div className="grid grid-cols-2 gap-4">
+            <CustomSelect 
+              label="Material" id="material" value={form.material} onChange={set("material")}
+              options={materialOptions} accentClass="text-yellow-400" ringClass="focus:ring-yellow-500/30"
+            />
+            <CustomSelect 
+              label="Gem / Stone" id="stone" value={form.stone} onChange={set("stone")}
+              options={stoneOptions} accentClass="text-yellow-400" ringClass="focus:ring-yellow-500/30"
+            />
+          </div>
 
-      <div className="space-y-1.5">
-        <label htmlFor="ring-size" className="text-sm font-medium text-gray-300">
-          Ring Size <span className="text-xs text-gray-500">(optional)</span>
-        </label>
-        <input
-          id="ring-size" type="text" value={form.ring_size}
-          onChange={(e) => set("ring_size")(e.target.value)}
-          placeholder="e.g. US 7, EU 54"
-          className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all"
-        />
+          <div className="space-y-1.5">
+            <label htmlFor="ring-size" className="text-sm font-medium text-gray-300">
+              Ring Size <span className="text-xs text-gray-500">(optional)</span>
+            </label>
+            <input
+              id="ring-size" type="text" value={form.ring_size}
+              onChange={(e) => set("ring_size")(e.target.value)}
+              placeholder="e.g. US 7, EU 54"
+              className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-gray-300">Reference Image (Optional)</label>
+          <ImageUpload onImageSelect={setSelectedImage} />
+        </div>
       </div>
 
       <button
@@ -133,17 +144,18 @@ function JewelryTab({ onSubmit, isGenerating }: {
 
 // ─── Clothing Generator Tab ───────────────────────────────────────────────────
 function ClothingTab({ onSubmit, isGenerating }: {
-  onSubmit: (prompt: string, options: Record<string, string>) => void;
+  onSubmit: (prompt: string, options: Record<string, string>, image?: File | null) => void;
   isGenerating: boolean;
 }) {
   const [form, setForm] = useState<ClothingForm>({ prompt: "", garment_type: "hoodie" });
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(form.prompt, { garment_type: form.garment_type });
+    onSubmit(form.prompt, { garment_type: form.garment_type }, selectedImage);
   };
 
-  const set = (key: keyof ClothingForm) => (val: string) => setForm(f => ({ ...f, [key]: val }));
+  const set = (key: keyof ClothingForm) => (val: string) => setForm((f: ClothingForm) => ({ ...f, [key]: val }));
 
   const garmentOptions: SelectOption[] = [
     { value: "hoodie", label: "Hoodie", icon: <Shirt size={14} /> },
@@ -156,16 +168,25 @@ function ClothingTab({ onSubmit, isGenerating }: {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <TextareaField
-        label="Describe Your Garment" id="clothing-prompt"
-        value={form.prompt} onChange={set("prompt")}
-        placeholder="e.g. A slim-fit blazer with single button, navy blue, modern cut..."
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-5">
+          <TextareaField
+            label="Describe Your Garment" id="clothing-prompt"
+            value={form.prompt} onChange={set("prompt")}
+            placeholder="e.g. A slim-fit blazer with single button, navy blue, modern cut..."
+          />
 
-      <CustomSelect 
-        label="Garment Type" id="garment-type" value={form.garment_type} onChange={set("garment_type")}
-        options={garmentOptions} accentClass="text-violet-400" ringClass="focus:ring-violet-500/30"
-      />
+          <CustomSelect 
+            label="Garment Type" id="garment-type" value={form.garment_type} onChange={set("garment_type")}
+            options={garmentOptions} accentClass="text-violet-400" ringClass="focus:ring-violet-500/30"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-gray-300">Reference Image (Optional)</label>
+          <ImageUpload onImageSelect={setSelectedImage} />
+        </div>
+      </div>
 
       <button
         type="submit"
@@ -191,7 +212,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [resultUrls, setResultUrls] = useState<any>(null);
 
-  const handleGenerate = async (prompt: string, options: Record<string, string>) => {
+  const handleGenerate = async (prompt: string, options: Record<string, string>, image?: File | null) => {
     setIsGenerating(true);
     setLoadingStep(0);
     setError(null);
@@ -202,7 +223,15 @@ export default function Home() {
     }, 4000);
 
     try {
-      const result = await designApi.generateFromText(prompt, activeTab, options);
+      let result;
+      if (image) {
+        // Image to 3D with options
+        result = await designApi.generateFromImage(prompt, activeTab, image, options);
+      } else {
+        // Text to 3D with options
+        result = await designApi.generateFromText(prompt, activeTab, options);
+      }
+      
       setResultUrls({
         glb_url: result.model_glb_url,
         obj_url: result.model_obj_url,
