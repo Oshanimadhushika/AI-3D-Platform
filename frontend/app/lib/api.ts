@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -10,11 +10,12 @@ const apiClient = axios.create({
 });
 
 export const designApi = {
-  generateFromText: async (prompt: string, category: string) => {
+  generateFromText: async (prompt: string, category: string, options: Record<string, string> = {}) => {
     const response = await apiClient.post('/generate-from-text', {
       design: {
         prompt,
         category,
+        options,
       },
     });
     return response.data;
