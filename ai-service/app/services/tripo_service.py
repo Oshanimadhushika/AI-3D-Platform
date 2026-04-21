@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Optional
 from app.services.base import Base3DGenerator
 from app.schemas.generation import GenerationResult, TextTo3DRequest, ImageTo3DRequest
-from app.utils.prompt_helper import enrich_prompt
+from app.utils.prompt_helper import build_prompt
 
 class Tripo3DGenerator(Base3DGenerator):
     BASE_URL = "https://api.tripo3d.ai/v2/openapi/task"
@@ -19,13 +19,16 @@ class Tripo3DGenerator(Base3DGenerator):
         }
 
     async def generate_from_text(self, request: TextTo3DRequest) -> GenerationResult:
-        # 1. Enrich the prompt
-        original_prompt = request.prompt
-        final_prompt = enrich_prompt(original_prompt)
+        # 1. Build the optimized prompt
+        final_prompt = build_prompt(
+            category=request.category, 
+            user_prompt=request.prompt, 
+            options=request.options
+        )
         
         print(f"\n[AI-SERVICE] Processing Text-to-3D Request")
-        print(f"  > Original Prompt: {original_prompt}")
-        print(f"  > Enriched Prompt: {final_prompt}")
+        print(f"  > Input Category: {request.category}")
+        print(f"  > Final Optimized Prompt: {final_prompt}")
 
         payload = {
             "type": "text_to_model",
