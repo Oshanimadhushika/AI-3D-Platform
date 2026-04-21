@@ -78,6 +78,5 @@ class Tripo3DGenerator(Base3DGenerator):
                 elif status == "failed":
                     raise Exception(f"Tripo AI generation failed: {status_data['data'].get('message', 'Unknown error')}")
                 
-                attempts += 1
 
             raise Exception("Tripo AI generation timed out after 3 minutes.")
