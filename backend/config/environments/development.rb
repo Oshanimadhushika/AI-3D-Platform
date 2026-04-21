@@ -39,8 +39,7 @@ Rails.application.configure do
   config.active_support.disallowed_deprecation_warnings = []
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
-  # Use :amazon if AWS keys are present, otherwise fallback to :local
-  config.active_storage.service = ENV['AWS_ACCESS_KEY_ID'] ? :amazon : :local
+  config.active_storage.service = :local
 
   # Default URL options for generating absolute URLs (required for Active Storage helpers)
   config.action_controller.default_url_options = { host: 'localhost', port: 3001 }

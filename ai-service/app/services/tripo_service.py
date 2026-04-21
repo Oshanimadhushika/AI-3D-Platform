@@ -43,24 +43,28 @@ class Tripo3DGenerator(Base3DGenerator):
         payload = {
             "type": "image_to_model",
             "file": {
-                "type": request.image_url.split('.')[-1].split('?')[0] if '.' in request.image_url else "png",
-                "url": request.image_url
+                "type": str(request.image_url).split('.')[-1].split('?')[0] if '.' in str(request.image_url) else "png",
+                "url": str(request.image_url)
             }
         }
         return await self._create_and_poll_task(payload)
 
     async def _create_and_poll_task(self, payload: dict) -> GenerationResult:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            # 1. Create Task
-            print(f"  > Sending request to Tripo API...")
-            response = await client.post(self.BASE_URL, headers=self.headers, json=payload)
-            
-            if response.status_code != 200:
-                print(f"  !! API Error: {response.status_code} - {response.text}")
-                response.raise_for_status()
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                # 1. Create Task
+                print(f"  > Sending request to Tripo API...")
+                print(f"  > BASE_URL: {self.BASE_URL}")
+                
+                response = await client.post(self.BASE_URL, headers=self.headers, json=payload)
+                
+                if response.status_code != 200:
+                    error_detail = response.text
+                    print(f"  !! Tripo API Error: {response.status_code} - {error_detail}")
+                    raise Exception(f"Tripo API Error ({response.status_code}): {error_detail}")
 
-            task_data = response.json()
-            print(f"  > Task Created Response: {json.dumps(task_data, indent=2)}")
+                task_data = response.json()
+                print(f"  > Task Created Successfully")
             
             task_id = task_data.get("data", {}).get("task_id")
             if not task_id:
@@ -117,3 +121,6 @@ class Tripo3DGenerator(Base3DGenerator):
             
             print(f"  !! Timed out after {timeout} seconds")
             raise Exception("Tripo AI generation timed out.")
+        except Exception as e:
+            print(f"  [CRITICAL ERROR] {str(e)}")
+            raise e
