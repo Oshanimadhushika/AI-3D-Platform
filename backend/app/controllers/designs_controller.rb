@@ -17,8 +17,12 @@ class DesignsController < ApplicationController
     # For now, associate with a default user for testing
     user = User.first || User.create!(email: "guest@example.com", password: "password")
     
+    prompt = params.dig(:design, :prompt)
+    category = params.dig(:design, :category)
+    options = params.dig(:design, :options)&.to_unsafe_h || {}
+
     ai_client = AiServiceClient.new
-    result = ai_client.text_to_3d(params.dig(:design, :prompt), params.dig(:design, :category))
+    result = ai_client.text_to_3d(prompt, category, options)
 
     if result[:success]
       @design = user.designs.build(design_params)
@@ -42,6 +46,7 @@ class DesignsController < ApplicationController
     
     prompt = params[:prompt] || params.dig(:design, :prompt)
     category = params[:category] || params.dig(:design, :category) || "Uncategorized"
+    options = params[:options] || params.dig(:design, :options)&.to_unsafe_h || {}
 
     @design = user.designs.build(prompt: prompt, category: category)
     @design.source_image.attach(params[:image]) if params[:image]
@@ -50,7 +55,7 @@ class DesignsController < ApplicationController
       ai_client = AiServiceClient.new
       # Pass the real public URL of the uploaded image to the AI service
       image_url = Rails.application.routes.url_helpers.url_for(@design.source_image)
-      result = ai_client.image_to_3d(image_url, category)
+      result = ai_client.image_to_3d(image_url, category, options)
 
       if result[:success]
         AttachmentService.attach_remote_files(@design, result[:data])
@@ -72,7 +77,7 @@ class DesignsController < ApplicationController
   private
 
   def design_params
-    params.require(:design).permit(:prompt, :category)
+    params.require(:design).permit(:prompt, :category, options: {})
   end
 
   def map_ai_data(design, data)

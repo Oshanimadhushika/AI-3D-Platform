@@ -15,7 +15,7 @@ interface Design {
   created_at: string;
 }
 
-const CATEGORIES = ["All", "Furniture", "Jewelry", "Character", "Weapon", "Prop", "Building"];
+const CATEGORIES = ["All", "Jewelry", "Clothing"];
 
 // Simple global cache for designs to prevent flickering on navigation
 let designsCache: Design[] | null = null;

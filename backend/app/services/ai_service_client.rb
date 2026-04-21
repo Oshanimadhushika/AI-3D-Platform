@@ -1,28 +1,39 @@
 require 'faraday'
 
 class AiServiceClient
-  BASE_URL = 'http://localhost:8000'
+  BASE_URL = ENV.fetch('AI_SERVICE_URL', 'http://localhost:8000')
 
   def initialize
     @conn = Faraday.new(url: BASE_URL) do |f|
       f.request :json
       f.response :json
-      f.options.timeout = 180 # 180 seconds (3 mins) for real Tripo AI generation
-      f.options.open_timeout = 5
+      f.options.timeout = 300 # 300 seconds (5 mins) for increased complexity
+      f.options.open_timeout = 10
       f.adapter Faraday.default_adapter
     end
   end
 
-  def text_to_3d(prompt, category = "Uncategorized")
-    response = @conn.post('/text-to-3d', { prompt: prompt, category: category })
+  def text_to_3d(prompt, category = "Uncategorized", options = {})
+    payload = { prompt: prompt, category: category, options: options }
+    
+    Rails.logger.info("\n[RAILS] Outgoing AI Request (Text-to-3D):")
+    Rails.logger.info("  URL: #{BASE_URL}/text-to-3d")
+    Rails.logger.info("  Payload: #{payload.to_json}")
+
+    response = @conn.post('/text-to-3d', payload)
     handle_response(response)
   rescue Faraday::Error => e
     handle_error(e)
   end
 
-  def image_to_3d(image_url, category = "ImageDriven")
-    # For now, FastAPI expects a JSON body with image_url
-    response = @conn.post('/image-to-3d', { image_url: image_url, category: category })
+  def image_to_3d(image_url, category = "ImageDriven", options = {})
+    payload = { image_url: image_url, category: category, options: options }
+
+    Rails.logger.info("\n[RAILS] Outgoing AI Request (Image-to-3D):")
+    Rails.logger.info("  URL: #{BASE_URL}/image-to-3d")
+    Rails.logger.info("  Payload: #{payload.to_json}")
+
+    response = @conn.post('/image-to-3d', payload)
     handle_response(response)
   rescue Faraday::Error => e
     handle_error(e)
