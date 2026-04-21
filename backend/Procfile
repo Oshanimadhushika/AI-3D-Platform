@@ -1,0 +1,7 @@
+# Procfile — Process definitions for Render / Railway / Heroku
+#
+# Render uses this to know how to start each process type.
+# The AI service is deployed as a separate Render service (see render.yaml).
+
+web: bundle exec rails server -p ${PORT:-3001} -e ${RAILS_ENV:-production}
+release: bundle exec rails db:migrate

@@ -4,7 +4,10 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '>= 3.2.0'
 
 gem 'rails', '~> 7.0.0'
-gem 'sqlite3', '~> 1.4'
+# SQLite for local development only
+gem 'sqlite3', '~> 1.4', group: [:development, :test]
+# PostgreSQL for production (Supabase / Render)
+gem 'pg', '~> 1.1', group: :production
 gem 'puma', '~> 5.0'
 gem 'rack-cors'
 gem 'bootsnap', require: false

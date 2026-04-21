@@ -1,0 +1,63 @@
+# render.yaml — Infrastructure-as-Code for Render.com
+# Commit this file to your repo. Render will auto-detect it.
+# Dashboard → New → Blueprint → connect your GitHub repo.
+#
+# References:
+#   https://render.com/docs/blueprint-spec
+
+services:
+  # ─────────────────────────────────────────────
+  # 1. Rails API Backend
+  # ─────────────────────────────────────────────
+  - type: web
+    name: ai3d-backend
+    runtime: ruby
+    region: oregon
+    plan: free          # upgrade to starter ($7/mo) for persistent disk
+    rootDir: backend
+    buildCommand: |
+      bundle install
+      bundle exec rails assets:precompile 2>/dev/null || true
+    startCommand: bundle exec rails server -p $PORT -e production
+    healthCheckPath: /health
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_LOG_TO_STDOUT
+        value: "true"
+      - key: RAILS_SERVE_STATIC_FILES
+        value: "true"
+      - key: RAILS_MASTER_KEY
+        sync: false       # paste value in Render dashboard — never commit this
+      - key: DATABASE_URL
+        sync: false       # paste your Supabase connection string
+      - key: RAILS_HOST
+        sync: false       # your Render backend domain e.g. ai3d-backend.onrender.com
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        sync: false
+      - key: AWS_BUCKET_NAME
+        sync: false
+      - key: AI_SERVICE_URL
+        sync: false       # URL of the FastAPI service below once deployed
+
+  # ─────────────────────────────────────────────
+  # 2. FastAPI AI Service
+  # ─────────────────────────────────────────────
+  - type: web
+    name: ai3d-python
+    runtime: python
+    region: oregon
+    plan: free
+    rootDir: ai-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: TRIPO_API_KEY
+        sync: false       # paste in Render dashboard
+      - key: DEBUG
+        value: "False"
