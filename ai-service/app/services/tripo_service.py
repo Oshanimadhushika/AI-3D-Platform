@@ -10,12 +10,12 @@ from app.utils.prompt_helper import build_prompt
 
 class Tripo3DGenerator(Base3DGenerator):
     BASE_URL = "https://api.tripo3d.ai/v2/openapi/task"
+    UPLOAD_URL = "https://api.tripo3d.ai/v2/openapi/upload"
     
     def __init__(self, api_key: str):
         self.api_key = api_key
         self.headers = {
             "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
         }
 
     async def generate_from_text(self, request: TextTo3DRequest) -> GenerationResult:
@@ -41,12 +41,40 @@ class Tripo3DGenerator(Base3DGenerator):
         print(f"  > Image URL: {request.image_url}")
         print(f"  > Prompt: {request.prompt}")
 
+        img_url_str = str(request.image_url)
+        is_local = "localhost" in img_url_str or "127.0.0.1" in img_url_str
+        
+        # Tripo V2 requires a public URL or a file_token
+        # Since localhost is not public, we must upload the file to Tripo to get a token
+        file_payload = {}
+        file_ext = img_url_str.split('.')[-1].split('?')[0].lower() if '.' in img_url_str else "png"
+        if file_ext not in ["png", "jpg", "jpeg", "webp"]:
+            file_ext = "png"
+
+        async with httpx.AsyncClient(timeout=60.0, follow_redirects=True) as client:
+            if is_local:
+                print(f"  > Localhost detected. Uploading image to Tripo storage...")
+                # 1. Download from local rails
+                img_response = await client.get(img_url_str)
+                if img_response.status_code != 200:
+                    raise Exception(f"Failed to download local image (HTTP {img_response.status_code})")
+                
+                # 2. Upload to Tripo
+                upload_files = {"file": (f"input.{file_ext}", img_response.content, f"image/{file_ext}")}
+                upload_resp = await client.post(self.UPLOAD_URL, headers=self.headers, files=upload_files)
+                
+                if upload_resp.status_code != 200:
+                    raise Exception(f"Tripo Upload Failed: {upload_resp.text}")
+                
+                file_token = upload_resp.json().get("data", {}).get("image_token")
+                print(f"  > Image uploaded! Token: {file_token[:15]}...")
+                file_payload = {"type": file_ext, "file_token": file_token}
+            else:
+                file_payload = {"type": file_ext, "url": img_url_str}
+
         payload = {
             "type": "image_to_model",
-            "file": {
-                "type": str(request.image_url).split('.')[-1].split('?')[0] if '.' in str(request.image_url) else "png",
-                "url": str(request.image_url)
-            }
+            "file": file_payload
         }
         
         if request.prompt:
