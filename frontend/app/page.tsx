@@ -12,9 +12,18 @@ type Tab = "jewelry" | "clothing";
 
 interface JewelryForm {
   prompt: string;
+  category: string;
   material: string;
   stone: string;
-  ring_size: string;
+  dimensions: {
+    ring_size?: string;
+    band_width?: string;
+    chain_length?: string;
+    pendant_size?: string;
+    wrist_size?: string;
+    bracelet_width?: string;
+    drop_height?: string;
+  };
 }
 
 interface ClothingForm {
@@ -57,18 +66,35 @@ function JewelryTab({ onSubmit, isGenerating }: {
   isGenerating: boolean;
 }) {
   const [form, setForm] = useState<JewelryForm>({
-    prompt: "", material: "gold", stone: "diamond", ring_size: "",
+    prompt: "", 
+    category: "ring",
+    material: "gold", 
+    stone: "diamond", 
+    dimensions: {},
   });
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const options: Record<string, string> = { material: form.material, stone: form.stone };
-    if (form.ring_size) options.ring_size = form.ring_size;
+    const options: Record<string, string> = { 
+      category: form.category,
+      material: form.material, 
+      stone: form.stone,
+      ...form.dimensions
+    };
     onSubmit(form.prompt, options, selectedImage);
   };
 
-  const set = (key: keyof JewelryForm) => (val: string) => setForm((f: JewelryForm) => ({ ...f, [key]: val }));
+  const set = (key: keyof JewelryForm) => (val: any) => setForm((f) => ({ ...f, [key]: val }));
+  const setDim = (key: keyof JewelryForm["dimensions"]) => (val: string) => 
+    setForm((f) => ({ ...f, dimensions: { ...f.dimensions, [key]: val } }));
+
+  const categoryOptions: SelectOption[] = [
+    { value: "ring", label: "Ring", icon: <Gem size={14} /> },
+    { value: "necklace", label: "Necklace", icon: <Sparkles size={14} /> },
+    { value: "bracelet", label: "Bracelet", icon: <div className="w-3 h-3 rounded-full border-2 border-yellow-500" /> },
+    { value: "earring", label: "Earring", icon: <div className="w-1.5 h-3 rounded-full bg-yellow-500" /> },
+  ];
 
   const materialOptions: SelectOption[] = [
     { value: "gold", label: "Gold", icon: <Sparkles size={14} /> },
@@ -91,37 +117,68 @@ function JewelryTab({ onSubmit, isGenerating }: {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-5">
           <TextareaField
-            label="Describe Your Piece" id="jewelry-prompt"
+            label="Design Concept" id="jewelry-prompt"
             value={form.prompt} onChange={set("prompt")}
-            placeholder="e.g. An elegant engagement ring with a princess cut center stone..."
+            placeholder="Describe your vision (e.g. Vintage art-deco ring with intricate floral patterns...)"
+            required
           />
 
           <div className="grid grid-cols-2 gap-4">
-            <CustomSelect 
-              label="Material" id="material" value={form.material} onChange={set("material")}
-              options={materialOptions} accentClass="text-yellow-400" ringClass="focus:ring-yellow-500/30"
+             <CustomSelect 
+              label="Item Type" id="category" value={form.category} onChange={set("category")}
+              options={categoryOptions} accentClass="text-yellow-400" ringClass="focus:ring-yellow-500/30"
             />
             <CustomSelect 
-              label="Gem / Stone" id="stone" value={form.stone} onChange={set("stone")}
-              options={stoneOptions} accentClass="text-yellow-400" ringClass="focus:ring-yellow-500/30"
+              label="Primary Material" id="material" value={form.material} onChange={set("material")}
+              options={materialOptions} accentClass="text-yellow-400" ringClass="focus:ring-yellow-500/30"
             />
           </div>
 
-          <div className="space-y-1.5">
-            <label htmlFor="ring-size" className="text-sm font-medium text-gray-300">
-              Ring Size <span className="text-xs text-gray-500">(optional)</span>
-            </label>
-            <input
-              id="ring-size" type="text" value={form.ring_size}
-              onChange={(e) => set("ring_size")(e.target.value)}
-              placeholder="e.g. US 7, EU 54"
-              className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all"
+          <div className="space-y-5 pt-2">
+            <CustomSelect 
+              label="Center Stone" id="stone" value={form.stone} onChange={set("stone")}
+              options={stoneOptions} accentClass="text-yellow-400" ringClass="focus:ring-yellow-500/30"
             />
+
+            {/* Dynamic Dimension Spec Sheet */}
+            <div className="bg-white/[0.03] p-5 rounded-2xl border border-white/5 space-y-4">
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500">Engineering Specs</p>
+                <div className="px-2 py-0.5 rounded bg-white/5 text-[9px] font-medium text-gray-600 border border-white/5">Units: Metric / Imperial</div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                {form.category === "ring" && (
+                  <>
+                    <SpecInput label="Ring Size" placeholder="7" unit="US/EU" value={form.dimensions.ring_size} onChange={setDim("ring_size")} />
+                    <SpecInput label="Band Width" placeholder="2.5" unit="mm" value={form.dimensions.band_width} onChange={setDim("band_width")} />
+                  </>
+                )}
+                {form.category === "necklace" && (
+                  <>
+                    <SpecInput label="Chain Length" placeholder="45" unit="cm" value={form.dimensions.chain_length} onChange={setDim("chain_length")} />
+                    <SpecInput label="Pendant Size" placeholder="12" unit="mm" value={form.dimensions.pendant_size} onChange={setDim("pendant_size")} />
+                  </>
+                )}
+                {form.category === "bracelet" && (
+                  <>
+                    <SpecInput label="Wrist Cir." placeholder="170" unit="mm" value={form.dimensions.wrist_size} onChange={setDim("wrist_size")} />
+                    <SpecInput label="Bracelet Width" placeholder="6" unit="mm" value={form.dimensions.bracelet_width} onChange={setDim("bracelet_width")} />
+                  </>
+                )}
+                {form.category === "earring" && (
+                  <>
+                    <SpecInput label="Drop Height" placeholder="25" unit="mm" value={form.dimensions.drop_height} onChange={setDim("drop_height")} />
+                    <SpecInput label="Style" placeholder="Hoop" unit="Type" value={form.dimensions.ring_size} onChange={setDim("ring_size")} />
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-gray-300">Reference Image (Optional)</label>
+          <label className="text-sm font-medium text-gray-300">Visual Inspiration</label>
           <ImageUpload onImageSelect={setSelectedImage} />
         </div>
       </div>
@@ -133,14 +190,34 @@ function JewelryTab({ onSubmit, isGenerating }: {
       >
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
         {isGenerating ? (
-          <><div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" /><span>Crafting...</span></>
+          <><div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" /><span>Crafting Masterpiece...</span></>
         ) : (
-          <><Gem size={18} /><span>Generate Jewelry Model</span></>
+          <><Gem size={18} /><span>Generate 3D Product Model</span></>
         )}
       </button>
     </form>
   );
 }
+
+function SpecInput({ label, placeholder, unit, value = "", onChange }: { label: string; placeholder: string; unit: string; value?: string; onChange: (v: string) => void }) {
+  return (
+    <div className="space-y-1">
+      <label className="text-[10px] font-bold text-gray-600 uppercase tracking-wider">{label}</label>
+      <div className="relative group">
+        <input
+          type="text" value={value} onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="w-full bg-black/40 border border-white/5 rounded-xl py-2.5 pl-3 pr-12 text-white text-xs placeholder-gray-700 focus:outline-none focus:border-yellow-500/30 transition-all"
+        />
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-bold text-gray-700 select-none group-focus-within:text-yellow-500/50">
+          {unit}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 
 // ─── Clothing Generator Tab ───────────────────────────────────────────────────
 function ClothingTab({ onSubmit, isGenerating }: {
@@ -161,9 +238,12 @@ function ClothingTab({ onSubmit, isGenerating }: {
     { value: "hoodie", label: "Hoodie", icon: <Shirt size={14} /> },
     { value: "t-shirt", label: "T-Shirt", icon: <Shirt size={14} /> },
     { value: "jacket", label: "Jacket", icon: <Shirt size={14} /> },
-    { value: "blazer", label: "Blazer", icon: <Shirt size={14} /> },
     { value: "dress", label: "Dress", icon: <Shirt size={14} /> },
-    { value: "pants", label: "Pants", icon: <Shirt size={14} /> },
+    { value: "pants", label: "Pants / Skirt", icon: <div className="w-3 h-3 rounded-sm border border-violet-400" /> },
+    { value: "sneakers", label: "Sneakers / Shoes", icon: <div className="w-3.5 h-2 bg-violet-400 rounded-sm" /> },
+    { value: "boots", label: "Boots", icon: <div className="w-3 h-3 bg-violet-500 rounded-sm" /> },
+    { value: "hat", label: "Hat / Cap", icon: <div className="w-3 h-1.5 bg-violet-400 rounded-full" /> },
+    { value: "backpack", label: "Bag / Backpack", icon: <div className="w-3 h-3 border-2 border-violet-400 rounded-md" /> },
   ];
 
   return (
@@ -292,7 +372,7 @@ export default function Home() {
         <div className="flex bg-white/[0.04] p-1 rounded-2xl border border-white/10 gap-1">
           {([
             { id: "jewelry" as Tab, label: "Jewelry", Icon: Gem, activeClass: "bg-gradient-to-r from-yellow-600 to-amber-500 text-black shadow-lg shadow-yellow-500/30" },
-            { id: "clothing" as Tab, label: "Clothing", Icon: Shirt, activeClass: "bg-gradient-to-r from-violet-600 to-indigo-500 text-white shadow-lg shadow-violet-500/30" },
+            { id: "clothing" as Tab, label: "Fashion", Icon: Shirt, activeClass: "bg-gradient-to-r from-violet-600 to-indigo-500 text-white shadow-lg shadow-violet-500/30" },
           ] as const).map(({ id, label, Icon, activeClass }) => (
             <button
               key={id}
@@ -302,7 +382,7 @@ export default function Home() {
               }`}
             >
               <Icon size={16} />
-              {label} Generator
+              {label} Studio
             </button>
           ))}
         </div>
@@ -329,8 +409,8 @@ export default function Home() {
               {isJewelry ? <Gem size={18} /> : <Shirt size={18} />}
             </div>
             <div>
-              <h2 className="text-white font-bold text-sm">{isJewelry ? "Jewelry Generator" : "Clothing Generator"}</h2>
-              <p className="text-gray-600 text-xs">{isJewelry ? "Luxury • Photorealistic • Production-ready" : "Fashion • Realistic Fabric • Wearable"}</p>
+              <h2 className="text-white font-bold text-sm">{isJewelry ? "Jewelry Generator" : "Fashion & Style Generator"}</h2>
+              <p className="text-gray-600 text-xs">{isJewelry ? "Luxury • Photorealistic • Production-ready" : "Apparel • Footwear • Accessories"}</p>
             </div>
           </div>
 
