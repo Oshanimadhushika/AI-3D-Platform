@@ -37,6 +37,17 @@ interface ModelViewerProps {
 }
 
 export default function ModelViewer({ glbUrl }: ModelViewerProps) {
+  if (!glbUrl) {
+    return (
+      <div className="w-full h-[450px] bg-black/40 rounded-[2.5rem] flex flex-col items-center justify-center border border-white/5 space-y-4">
+        <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center">
+          <Loader2 className="text-gray-600" size={24} />
+        </div>
+        <p className="text-gray-500 text-xs font-medium">Preparing 3D Preview...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-[450px] bg-gradient-to-b from-black/60 to-black/30 rounded-[2.5rem] overflow-hidden border border-white/5 shadow-2xl relative group">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(79,70,229,0.1),transparent_70%)]" />
@@ -72,3 +83,4 @@ export default function ModelViewer({ glbUrl }: ModelViewerProps) {
     </div>
   );
 }
+

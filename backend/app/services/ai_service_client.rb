@@ -26,8 +26,8 @@ class AiServiceClient
     handle_error(e)
   end
 
-  def image_to_3d(image_url, category = "ImageDriven", options = {})
-    payload = { image_url: image_url, category: category, options: options }
+  def image_to_3d(image_url, prompt = nil, category = "ImageDriven", options = {})
+    payload = { image_url: image_url, prompt: prompt, category: category, options: options }
 
     Rails.logger.info("\n[RAILS] Outgoing AI Request (Image-to-3D):")
     Rails.logger.info("  URL: #{BASE_URL}/image-to-3d")

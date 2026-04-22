@@ -10,6 +10,7 @@ class TextTo3DRequest(BaseModel):
 class ImageTo3DRequest(BaseModel):
     image_url: Optional[HttpUrl] = None
     image_base64: Optional[str] = None
+    prompt: Optional[str] = None
     category: Optional[str] = "ImageDriven"
     options: Optional[Dict[str, Any]] = {}
 
