@@ -49,6 +49,17 @@ class AttachmentService
         Rails.logger.error "[ATTACHMENT] STL Error: #{e.message}"
       end
     end
+
+    # Attach Rendered Image (Thumbnail)
+    if data["rendered_image_url"].present? && data["rendered_image_url"].start_with?("http")
+      Rails.logger.info "[ATTACHMENT] Attempting Rendered Image attach: #{data["rendered_image_url"]}"
+      begin
+        file = URI.open(data["rendered_image_url"])
+        design.rendered_image.attach(io: file, filename: "render_#{design.id}.png", content_type: "image/png")
+      rescue => e
+        Rails.logger.error "[ATTACHMENT] Rendered Image Error: #{e.message}"
+      end
+    end
   end
 
 end

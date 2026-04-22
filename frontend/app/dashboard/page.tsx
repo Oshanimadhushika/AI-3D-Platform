@@ -12,10 +12,12 @@ interface Design {
   model_glb_url?: string;
   model_obj_url?: string;
   model_stl_url?: string;
+  source_image_url?: string;
+  rendered_image_url?: string;
   created_at: string;
 }
 
-const CATEGORIES = ["All", "Jewelry", "Clothing"];
+const CATEGORIES = ["All", "Jewelry", "Fashion"];
 
 // Simple global cache for designs to prevent flickering on navigation
 let designsCache: Design[] | null = null;
@@ -36,8 +38,13 @@ export default function Dashboard() {
     setError(null);
     try {
       const data = await designApi.getDesigns();
-      setDesigns(data);
-      designsCache = data;
+      // Map potential 'clothing' to 'fashion' for filter consistency
+      const mappedData = data.map((d: any) => ({
+        ...d,
+        category: d.category === "clothing" ? "Fashion" : d.category
+      }));
+      setDesigns(mappedData);
+      designsCache = mappedData;
     } catch (err) {
       console.error("Failed to fetch designs:", err);
       setError("Could not load your designs. Please try again later.");
@@ -67,7 +74,7 @@ export default function Dashboard() {
 
   const filteredDesigns = useMemo(() => {
     return designs.filter((design) => {
-      const matchesSearch = design.prompt?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = (design.prompt || "").toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory === "All" || design.category?.toLowerCase() === selectedCategory.toLowerCase();
       return matchesSearch && matchesCategory;
     });
@@ -77,12 +84,12 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-950 p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold text-white">Your Designs</h1>
-          <p className="text-gray-400 text-sm">Manage and download your AI-generated 3D assets.</p>
+          <h1 className="text-3xl font-bold text-white tracking-tight">Design Library</h1>
+          <p className="text-gray-500 text-sm">Your private collection of AI-generated assets.</p>
         </div>
-        <Link href="/" className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-semibold transition-all shadow-lg shadow-indigo-600/20">
+        <Link href="/" className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-2xl font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-white/5">
           <Plus size={20} />
-          <span>New Generation</span>
+          <span>Start Generating</span>
         </Link>
       </header>
 
@@ -101,21 +108,21 @@ export default function Dashboard() {
             type="text" 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by prompt name..." 
-            className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-sm"
+            placeholder="Filter by description..." 
+            className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-3.5 pl-11 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-white/10 transition-all text-sm placeholder-gray-600 shadow-inner"
           />
         </div>
         
         <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
-          <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 shrink-0">
+          <div className="flex bg-white/[0.03] p-1 rounded-2xl border border-white/5 shrink-0">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${
                   selectedCategory === cat 
-                    ? "bg-indigo-600 text-white shadow-md" 
-                    : "text-gray-400 hover:text-white"
+                    ? "bg-white text-black shadow-lg" 
+                    : "text-gray-500 hover:text-white"
                 }`}
               >
                 {cat}
@@ -127,67 +134,89 @@ export default function Dashboard() {
 
       {/* Grid Results */}
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-20 text-indigo-400 gap-4">
-          <Loader2 className="animate-spin" size={40} />
-          <p className="text-sm font-medium animate-pulse">Fetching your library...</p>
+        <div className="flex flex-col items-center justify-center py-32 text-gray-500 gap-5">
+          <Loader2 className="animate-spin text-white/20" size={48} />
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] animate-pulse">Syncing Library</p>
         </div>
       ) : filteredDesigns.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 animate-in fade-in duration-500">
-          {filteredDesigns.map((design) => (
-            <div key={design.id} className="group bg-white/[0.03] border border-white/10 rounded-2xl overflow-hidden hover:bg-white/[0.06] hover:border-white/20 transition-all duration-300">
-              <div className="h-48 bg-black/40 relative flex items-center justify-center border-b border-white/5 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10" />
-                <div className="z-10 text-white/20">
-                   <PackageIcon size={48} strokeWidth={1} />
-                </div>
-                
-                <div className="absolute top-4 left-4">
-                  <span className="px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider backdrop-blur-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                    COMPLETED
-                  </span>
-                </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
+          {filteredDesigns.map((design) => {
+            const isJewelry = design.category?.toLowerCase() === 'jewelry';
+            const accentClass = isJewelry ? "text-yellow-500" : "text-violet-400";
+            const borderClass = isJewelry ? "border-yellow-500/20" : "border-violet-500/20";
+            const bgClass = isJewelry ? "from-yellow-500/5 to-transparent" : "from-violet-500/5 to-transparent";
 
-                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                   <button 
-                    onClick={() => handleDelete(design.id)}
-                    className="p-2 bg-red-500/20 border border-red-500/30 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all shadow-lg"
-                   >
-                     <Trash2 size={16} />
-                   </button>
-                </div>
-              </div>
-
-              <div className="p-4 space-y-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="max-w-[75%]">
-                    <h3 className="font-semibold text-white line-clamp-1">{design.prompt}</h3>
-                    <p className="text-xs text-gray-500 uppercase tracking-tight">{design.category} • {new Date(design.created_at).toLocaleDateString()}</p>
+            return (
+              <div key={design.id} className={`group bg-white/[0.02] border border-white/5 rounded-[2rem] overflow-hidden hover:bg-white/[0.04] transition-all duration-500 shadow-2xl relative`}>
+                {/* Image Area */}
+                <div className={`h-64 relative flex items-center justify-center overflow-hidden bg-gradient-to-br ${bgClass}`}>
+                  {(design.rendered_image_url || design.source_image_url) ? (
+                    <img 
+                      src={design.rendered_image_url || design.source_image_url} 
+                      alt={design.prompt} 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                  ) : (
+                    <div className="text-white/5 animate-pulse">
+                      <PackageIcon size={64} strokeWidth={0.5} />
+                    </div>
+                  )}
+                  
+                  {/* Glass Header */}
+                  <div className="absolute top-5 left-5 right-5 flex justify-between items-start pointer-events-none">
+                    <span className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-xl border pointer-events-auto ${
+                      isJewelry ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" : "bg-violet-500/10 text-violet-500 border-violet-500/20"
+                    }`}>
+                      {design.category}
+                    </span>
+                    
+                    <button 
+                      onClick={() => handleDelete(design.id)}
+                      className="p-2.5 bg-black/40 backdrop-blur-xl border border-white/10 text-gray-500 rounded-2xl hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/20 transition-all pointer-events-auto opacity-0 group-hover:opacity-100"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
-                  <button className="text-gray-500 hover:text-white transition-colors">
-                    <MoreVertical size={18} />
-                  </button>
+
+                  {/* Status Overlay */}
+                  <div className="absolute bottom-5 left-5 pointer-events-none">
+                    <div className="flex items-center gap-2 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full border border-white/5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-[9px] font-bold text-white/50 uppercase tracking-widest">Ready</span>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-2 pt-2">
-                  <a 
-                    href={design.model_glb_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium bg-white/5 hover:bg-white/10 text-white border border-white/10 transition-all"
-                  >
-                    <Download size={16} />
-                    Download
-                  </a>
-                  <Link 
-                    href="/"
-                    className="w-10 h-10 flex items-center justify-center rounded-lg bg-indigo-600/10 text-indigo-400 hover:bg-indigo-600 hover:text-white transition-all border border-indigo-500/20"
-                  >
-                    <ExternalLink size={16} />
-                  </Link>
+                {/* Content Area */}
+                <div className="p-6 space-y-4">
+                  <div className="space-y-1">
+                    <h3 className="font-bold text-white text-lg line-clamp-1 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/50 transition-all">
+                      {design.prompt}
+                    </h3>
+                    <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Modified {new Date(design.created_at).toLocaleDateString()}</p>
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-2">
+                    <a 
+                      href={design.model_glb_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-xs font-bold bg-white/5 hover:bg-white text-gray-400 hover:text-black transition-all border border-white/5 group/btn"
+                    >
+                      <Download size={16} className="group-hover/btn:scale-110 transition-transform" />
+                      Download GLB
+                    </a>
+                    <Link 
+                      href="/"
+                      className={`w-12 h-12 flex items-center justify-center rounded-2xl bg-white/[0.03] border border-white/5 transition-all group/icon ${accentClass} hover:bg-white/10`}
+                    >
+                      <ExternalLink size={20} className="group-hover/icon:scale-110 transition-transform" />
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 bg-white/[0.02] border border-white/5 rounded-3xl animate-in fade-in zoom-in-95 duration-300">

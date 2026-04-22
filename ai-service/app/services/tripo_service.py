@@ -176,7 +176,8 @@ class Tripo3DGenerator(Base3DGenerator):
                             if not obj_url:
                                 obj_url = ptm.get("url", ptm.get("obj", ""))
 
-                        print(f"  > Final URLs - GLB: {model_url[:50]}..., OBJ: {obj_url[:50]}...")
+                        rendered_image = result.get("rendered_image", "")
+                        print(f"  > Final URLs - GLB: {model_url[:50]}..., IMG: {rendered_image[:30]}...")
 
                         return GenerationResult(
                             task_id=task_id,
@@ -184,6 +185,7 @@ class Tripo3DGenerator(Base3DGenerator):
                             glb_url=model_url or "",
                             obj_url=obj_url or "",
                             stl_url=stl_url or "",
+                            rendered_image_url=rendered_image,
                             created_at=start_time
                         )
                     elif status == "failed":

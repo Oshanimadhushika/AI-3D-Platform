@@ -1,7 +1,7 @@
 class DesignsController < ApplicationController
   def index
     @designs = Design.all.order(created_at: :desc)
-    render json: @designs.as_json(methods: [:model_glb_url, :model_obj_url, :model_stl_url])
+    render json: @designs.as_json(methods: [:model_glb_url, :model_obj_url, :model_stl_url, :source_image_url, :rendered_image_url])
   end
 
   def show
@@ -30,7 +30,7 @@ class DesignsController < ApplicationController
       # Save the record first to ensure it's persisted before attaching
       if @design.save
         AttachmentService.attach_remote_files(@design, result[:data])
-        render json: @design.as_json(methods: [:model_glb_url, :model_obj_url, :model_stl_url]), status: :created
+        render json: @design.as_json(methods: [:model_glb_url, :model_obj_url, :model_stl_url, :rendered_image_url]), status: :created
       else
         render json: { errors: @design.errors.full_messages }, status: :unprocessable_entity
       end
@@ -69,7 +69,7 @@ class DesignsController < ApplicationController
 
       if result[:success]
         AttachmentService.attach_remote_files(@design, result[:data])
-        render json: @design.as_json(methods: [:model_glb_url, :model_obj_url, :model_stl_url]), status: :created
+        render json: @design.as_json(methods: [:model_glb_url, :model_obj_url, :model_stl_url, :rendered_image_url]), status: :created
       else
         render json: { error: result[:error], details: result[:details] }, status: :service_unavailable
       end

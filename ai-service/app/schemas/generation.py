@@ -20,4 +20,5 @@ class GenerationResult(BaseModel):
     glb_url: str
     obj_url: str
     stl_url: str
+    rendered_image_url: Optional[str] = None
     created_at: datetime
