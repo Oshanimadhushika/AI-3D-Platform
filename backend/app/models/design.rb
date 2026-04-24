@@ -7,23 +7,23 @@ class Design < ApplicationRecord
   has_one_attached :stl_model
 
   def model_glb_url
-    glb_model.attached? ? Rails.application.routes.url_helpers.url_for(glb_model) : nil
+    glb_model.attached? ? Rails.application.routes.url_helpers.rails_storage_proxy_url(glb_model, only_path: false) : nil
   end
 
   def model_obj_url
-    obj_model.attached? ? Rails.application.routes.url_helpers.url_for(obj_model) : nil
+    obj_model.attached? ? Rails.application.routes.url_helpers.rails_storage_proxy_url(obj_model, only_path: false) : nil
   end
 
   def model_stl_url
-    stl_model.attached? ? Rails.application.routes.url_helpers.url_for(stl_model) : nil
+    stl_model.attached? ? Rails.application.routes.url_helpers.rails_storage_proxy_url(stl_model, only_path: false) : nil
   end
 
   def source_image_url
-    source_image.attached? ? Rails.application.routes.url_helpers.url_for(source_image) : nil
+    source_image.attached? ? Rails.application.routes.url_helpers.rails_storage_proxy_url(source_image, only_path: false) : nil
   end
 
   def rendered_image_url
-    rendered_image.attached? ? Rails.application.routes.url_helpers.url_for(rendered_image) : nil
+    rendered_image.attached? ? Rails.application.routes.url_helpers.rails_storage_proxy_url(rendered_image, only_path: false) : nil
   end
 
   validates :prompt, presence: true

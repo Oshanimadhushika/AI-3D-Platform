@@ -64,7 +64,7 @@ class DesignsController < ApplicationController
     if @design.save
       ai_client = AiServiceClient.new
       # Pass the real public URL of the uploaded image to the AI service
-      image_url = Rails.application.routes.url_helpers.url_for(@design.source_image)
+      image_url = Rails.application.routes.url_helpers.rails_storage_proxy_url(@design.source_image, only_path: false)
       result = ai_client.image_to_3d(image_url, prompt, category, options)
 
       if result[:success]
