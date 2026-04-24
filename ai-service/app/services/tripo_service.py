@@ -162,7 +162,8 @@ class Tripo3DGenerator(Base3DGenerator):
                         if not model_url:
                             print("  > 'model' field empty, searching for fallbacks...")
                             if "pbr_model" in result:
-                                model_url = result["pbr_model"] if isinstance(result["pbr_model"], str) else result["pbr_model"].get("url", "")
+                                pbr = result["pbr_model"]
+                                model_url = pbr if isinstance(pbr, str) else pbr.get("url", "")
                         
                         obj_url = ""
                         stl_url = ""
@@ -170,14 +171,22 @@ class Tripo3DGenerator(Base3DGenerator):
                         # Extract other formats
                         if "textured_mesh" in result:
                             tm = result["textured_mesh"]
-                            obj_url = tm.get("url", tm.get("obj", ""))
+                            if isinstance(tm, dict):
+                                obj_url = tm.get("url", tm.get("obj", ""))
                         if "pbr_textured_mesh" in result:
                             ptm = result["pbr_textured_mesh"]
-                            if not obj_url:
+                            if isinstance(ptm, dict) and not obj_url:
                                 obj_url = ptm.get("url", ptm.get("obj", ""))
 
-                        rendered_image = result.get("rendered_image", "")
-                        print(f"  > Final URLs - GLB: {model_url[:50]}..., IMG: {rendered_image[:30]}...")
+                        # Extract rendered image URL
+                        rendered_image_raw = result.get("rendered_image", "")
+                        rendered_image = ""
+                        if isinstance(rendered_image_raw, str):
+                            rendered_image = rendered_image_raw
+                        elif isinstance(rendered_image_raw, dict):
+                            rendered_image = rendered_image_raw.get("url", "")
+
+                        print(f"  > Final URLs - GLB: {str(model_url)[:50]}..., IMG: {str(rendered_image)[:30]}...")
 
                         return GenerationResult(
                             task_id=task_id,
