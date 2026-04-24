@@ -13,8 +13,8 @@ Rails.application.configure do
   # Ensures the cache behaves correctly.
   config.action_controller.perform_caching = true
 
-  # Store uploaded files on Amazon S3 in production.
-  config.active_storage.service = :amazon
+  # Use local storage only (S3 is removed).
+  config.active_storage.service = :local
 
   # Force all access to the app over SSL.
   config.force_ssl = true
