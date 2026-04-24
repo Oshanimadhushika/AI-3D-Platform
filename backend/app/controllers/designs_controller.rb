@@ -26,6 +26,7 @@ class DesignsController < ApplicationController
 
     if result[:success]
       @design = user.designs.build(design_params)
+      map_ai_data(@design, result[:data]) # Save external URLs to DB columns first
       
       # Save the record first to ensure it's persisted before attaching
       if @design.save
@@ -68,7 +69,9 @@ class DesignsController < ApplicationController
       result = ai_client.image_to_3d(image_url, prompt, category, options)
 
       if result[:success]
+        map_ai_data(@design, result[:data])
         AttachmentService.attach_remote_files(@design, result[:data])
+        @design.save # Persist the new URLs
         render json: @design.as_json(methods: [:model_glb_url, :model_obj_url, :model_stl_url, :rendered_image_url]), status: :created
       else
         render json: { error: result[:error], details: result[:details] }, status: :service_unavailable
@@ -94,6 +97,6 @@ class DesignsController < ApplicationController
     design.model_glb_url = data["glb_url"]
     design.model_obj_url = data["obj_url"]
     design.model_stl_url = data["stl_url"]
-    design.image_url = "https://example.com/preview.png" # Standard preview
+    design.image_url = data["rendered_image_url"]
   end
 end
