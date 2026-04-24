@@ -42,7 +42,7 @@ Rails.application.configure do
 
   # Production host for generating absolute URLs (used by Active Storage).
   # Set RAILS_HOST in your environment to your actual Render/Railway domain.
-  production_host = ENV.fetch("RAILS_HOST", "your-backend.onrender.com")
+  production_host = ENV.fetch("RAILS_HOST", ENV.fetch("RENDER_EXTERNAL_HOSTNAME", "your-backend.onrender.com"))
   config.action_controller.default_url_options = { host: production_host, protocol: "https" }
   routes.default_url_options = { host: production_host, protocol: "https" }
 end
