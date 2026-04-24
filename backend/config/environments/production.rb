@@ -45,4 +45,7 @@ Rails.application.configure do
   production_host = ENV.fetch("RAILS_HOST", ENV.fetch("RENDER_EXTERNAL_HOSTNAME", "your-backend.onrender.com"))
   config.action_controller.default_url_options = { host: production_host, protocol: "https" }
   routes.default_url_options = { host: production_host, protocol: "https" }
+
+  # Enable Active Storage Proxying to solve CORS issues and 301 redirects
+  config.active_storage.resolve_model_to_route = :proxy
 end
