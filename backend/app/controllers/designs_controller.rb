@@ -30,9 +30,8 @@ class DesignsController < ApplicationController
       
       # Save the record first to ensure it's persisted
       if @design.save
-        # We now use direct database URLs, so we don't need to attach to S3/local storage for now.
-        # This resolves the empty bucket issues.
-        # AttachmentService.attach_remote_files(@design, result[:data])
+        # Downloader will fetch from Tripo and save to Render server's disk
+        AttachmentService.attach_remote_files(@design, result[:data])
         render json: @design.as_json(methods: [:model_glb_url, :model_obj_url, :model_stl_url, :rendered_image_url]), status: :created
       else
         render json: { errors: @design.errors.full_messages }, status: :unprocessable_entity
@@ -72,7 +71,7 @@ class DesignsController < ApplicationController
 
       if result[:success]
         map_ai_data(@design, result[:data])
-        # AttachmentService.attach_remote_files(@design, result[:data])
+        AttachmentService.attach_remote_files(@design, result[:data])
         @design.save # Persist the new URLs
         render json: @design.as_json(methods: [:model_glb_url, :model_obj_url, :model_stl_url, :rendered_image_url]), status: :created
       else
