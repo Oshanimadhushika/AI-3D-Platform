@@ -37,9 +37,17 @@ class Tripo3DGenerator(Base3DGenerator):
         return await self._create_and_poll_task(payload)
 
     async def generate_from_image(self, request: ImageTo3DRequest) -> GenerationResult:
+        # Build an enriched prompt (same quality anchors as text-to-3D)
+        enriched_prompt = build_prompt(
+            category=request.category,
+            user_prompt=request.prompt,
+            options=request.options,
+        ) if (request.prompt or request.category) else request.prompt
+
         print(f"\n[AI-SERVICE] Processing Image-to-3D Request")
         print(f"  > Image URL: {request.image_url}")
-        print(f"  > Prompt: {request.prompt}")
+        print(f"  > Raw Prompt:      {request.prompt}")
+        print(f"  > Enriched Prompt: {enriched_prompt}")
 
         img_url_str = str(request.image_url)
         is_local = "localhost" in img_url_str or "127.0.0.1" in img_url_str
@@ -77,8 +85,8 @@ class Tripo3DGenerator(Base3DGenerator):
             "file": file_payload
         }
         
-        if request.prompt:
-            payload["prompt"] = request.prompt
+        if enriched_prompt:
+            payload["prompt"] = enriched_prompt
             
         return await self._create_and_poll_task(payload)
 
